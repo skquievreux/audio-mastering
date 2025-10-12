@@ -26,6 +26,15 @@ def build_exe():
         "--hidden-import", "numpy",
         "--hidden-import", "flask",
         "--hidden-import", "requests",
+        "--hidden-import", "threading",
+        "--hidden-import", "webbrowser",
+        "--hidden-import", "werkzeug",
+        "--hidden-import", "jinja2",
+        "--hidden-import", "audio_analyzer",
+        "--hidden-import", "batch_processor",
+        "--hidden-import", "audio_processor",
+        "--hidden-import", "config",
+        "--hidden-import", "web_server",
         "mastering_tool.py"
     ]
 
@@ -61,8 +70,8 @@ def create_installer():
 !include "MUI2.nsh"
 !include "FileFunc.nsh"
 
-Name "Audio Mastering Tool v1.0.0"
-OutFile "AudioMasteringTool_Installer_v1.0.0.exe"
+Name "Audio Mastering Tool v1.1.0"
+OutFile "AudioMasteringTool_Installer_v1.1.0.exe"
 Unicode True
 InstallDir "$PROGRAMFILES\\Audio Mastering Tool"
 InstallDirRegKey HKCU "Software\\AudioMasteringTool" ""
@@ -94,6 +103,10 @@ Section "Audio Mastering Tool" SecApp
     CreateDirectory "$INSTDIR\\output"
     CreateDirectory "$INSTDIR\\logs"
 
+    ; Webserver-Modus Verknüpfung
+    CreateShortCut "$DESKTOP\\Audio Mastering Tool (Web).lnk" "$INSTDIR\\AudioMasteringTool.exe" "--web" "$INSTDIR\\AudioMasteringTool.exe"
+    CreateShortCut "$SMPROGRAMS\\Audio Mastering Tool\\Audio Mastering Tool (Web).lnk" "$INSTDIR\\AudioMasteringTool.exe" "--web" "$INSTDIR\\AudioMasteringTool.exe"
+
     ; Desktop-Verknüpfung erstellen
     CreateShortCut "$DESKTOP\\Audio Mastering Tool.lnk" "$INSTDIR\\AudioMasteringTool.exe"
 
@@ -111,9 +124,11 @@ SectionEnd
 Section "Uninstall"
     ; Desktop-Verknüpfung entfernen
     Delete "$DESKTOP\\Audio Mastering Tool.lnk"
+    Delete "$DESKTOP\\Audio Mastering Tool (Web).lnk"
 
     ; Startmenü entfernen
     Delete "$SMPROGRAMS\\Audio Mastering Tool\\Audio Mastering Tool.lnk"
+    Delete "$SMPROGRAMS\\Audio Mastering Tool\\Audio Mastering Tool (Web).lnk"
     Delete "$SMPROGRAMS\\Audio Mastering Tool\\Uninstall.lnk"
     RMDir "$SMPROGRAMS\\Audio Mastering Tool"
 
@@ -162,7 +177,7 @@ if __name__ == "__main__":
 
         print()
         print("🎉 Build abgeschlossen!")
-        print("📦 Verwende 'AudioMasteringTool_Installer_v1.0.0.exe' für die Installation")
+        print("📦 Verwende 'AudioMasteringTool_Installer_v1.1.0.exe' für die Installation")
     else:
         print("❌ Build fehlgeschlagen!")
         sys.exit(1)

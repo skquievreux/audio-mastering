@@ -5,3 +5,4 @@ pyloudnorm>=0.1.0
 flask>=2.0.0
 pyinstaller>=5.0.0
 requests>=2.25.0
+webbrowser>=1.0.0

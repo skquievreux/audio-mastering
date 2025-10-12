@@ -1,0 +1,120 @@
+2025-10-12 17:13:20 - INFO - 🎵 Audio Mastering Tool gestartet
+2025-10-12 17:13:20 - INFO - Input-Ordner: C:\CODE\GIT\Audio-Mastering\input
+2025-10-12 17:13:20 - INFO - Output-Ordner: C:\CODE\GIT\Audio-Mastering\output
+2025-10-12 17:13:20 - INFO - 🎛️ Verwende Custom-Settings: LUFS -10.0dB, Kompression Ja
+2025-10-12 17:13:20 - INFO - Starte Batch-Verarbeitung von 2 Dateien
+2025-10-12 17:13:20 - INFO - Verarbeite 1/2: Drowning in Expectations.wav
+2025-10-12 17:13:20 - INFO - 🔍 Starte Verarbeitung von input\Drowning in Expectations.wav
+2025-10-12 17:13:20 - INFO - 📂 Datei geladen: (15023999, 2), 48000Hz, Dauer: 313.0s
+2025-10-12 17:13:20 - INFO - 🔄 Resample von 48000Hz auf 44100Hz
+2025-10-12 17:13:36 - INFO - 📊 ORIGINAL - LUFS: -15.09dB, Peak: -3.59dBTP, RMS: -15.81dB
+2025-10-12 17:13:36 - INFO - 🎛️  Schritt 1: High-Pass Filter (20Hz)
+2025-10-12 17:13:37 - INFO -    → LUFS: -15.1dB (Δ-0.01dB)
+2025-10-12 17:13:37 - INFO - 🔊 Schritt 2: Peak Limiter (-1.0dBTP) - Anti-Clipping
+2025-10-12 17:13:39 - INFO -    → Peak: -2.14dBTP (Δ0.0dB)
+2025-10-12 17:13:39 - INFO - 🗜️  Schritt 3: Kompression (3.0:1 @ -20.0dB)
+2025-10-12 17:13:42 - INFO -    → LUFS: -19.7dB (Δ-4.6dB)
+2025-10-12 17:13:42 - INFO - 📏 Schritt 4: LUFS-Normalisierung auf -9.0dB (Headroom für Limiter)
+2025-10-12 17:13:44 - INFO -    → LUFS: -9.0dB (Δ10.7dB)
+2025-10-12 17:13:45 - INFO - 💾 Speichere als output\Drowning in Expectations_mastered.wav
+2025-10-12 17:13:46 - INFO - ✅ VERARBEITUNG ABGESCHLOSSEN
+2025-10-12 17:13:46 - INFO -    Original → Final: LUFS -15.09dB → -9.0dB
+2025-10-12 17:13:46 - INFO -    Peak: -3.59dBTP → -3.35dBTP
+2025-10-12 17:13:46 - INFO -    Dynamik: 12.22dB → 6.43dB
+2025-10-12 17:13:46 - INFO - Verarbeite 2/2: Searching for Purpose.wav
+2025-10-12 17:13:46 - INFO - 🔍 Starte Verarbeitung von input\Searching for Purpose.wav
+2025-10-12 17:13:46 - INFO - 📂 Datei geladen: (10727039, 2), 48000Hz, Dauer: 223.5s
+2025-10-12 17:13:46 - INFO - 🔄 Resample von 48000Hz auf 44100Hz
+2025-10-12 17:13:56 - INFO - 📊 ORIGINAL - LUFS: -14.94dB, Peak: -5.29dBTP, RMS: -16.72dB
+2025-10-12 17:13:56 - INFO - 🎛️  Schritt 1: High-Pass Filter (20Hz)
+2025-10-12 17:13:58 - INFO -    → LUFS: -14.94dB (Δ0.0dB)
+2025-10-12 17:13:58 - INFO - 🔊 Schritt 2: Peak Limiter (-1.0dBTP) - Anti-Clipping
+2025-10-12 17:13:58 - INFO -    → Peak: -3.56dBTP (Δ0.0dB)
+2025-10-12 17:13:58 - INFO - 🗜️  Schritt 3: Kompression (3.0:1 @ -20.0dB)
+2025-10-12 17:14:00 - INFO -    → LUFS: -19.09dB (Δ-4.15dB)
+2025-10-12 17:14:00 - INFO - 📏 Schritt 4: LUFS-Normalisierung auf -9.0dB (Headroom für Limiter)
+2025-10-12 17:14:02 - INFO -    → LUFS: -9.0dB (Δ10.09dB)
+2025-10-12 17:14:02 - INFO - 💾 Speichere als output\Searching for Purpose_mastered.wav
+2025-10-12 17:14:03 - INFO - ✅ VERARBEITUNG ABGESCHLOSSEN
+2025-10-12 17:14:03 - INFO -    Original → Final: LUFS -14.94dB → -9.0dB
+2025-10-12 17:14:03 - INFO -    Peak: -5.29dBTP → -4.43dBTP
+2025-10-12 17:14:03 - INFO -    Dynamik: 11.42dB → 6.36dB
+2025-10-12 17:14:03 - INFO - Batch-Verarbeitung abgeschlossen: 2 erfolgreich, 0 Fehler
+2025-10-12 17:14:03 - INFO - ✅ 2 Dateien erfolgreich verarbeitet
+2025-10-12 17:14:03 - INFO - 🌐 Webserver startet auf Port 8080
+2025-10-12 17:14:03 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8080
+ * Running on http://192.168.178.25:8080
+2025-10-12 17:14:03 - INFO - [33mPress CTRL+C to quit[0m
+2025-10-12 17:14:04 - INFO - 🌐 Browser geöffnet: http://localhost:8080
+2025-10-12 17:14:15 - INFO - 127.0.0.1 - - [12/Oct/2025 17:14:15] "GET / HTTP/1.1" 200 -
+2025-10-12 17:14:21 - INFO - 127.0.0.1 - - [12/Oct/2025 17:14:21] "GET / HTTP/1.1" 200 -
+2025-10-12 17:14:23 - INFO - 127.0.0.1 - - [12/Oct/2025 17:14:23] "[35m[1mGET /audio/input/Drowning%20in%20Expectations.wav HTTP/1.1[0m" 206 -
+2025-10-12 17:14:23 - INFO - 127.0.0.1 - - [12/Oct/2025 17:14:23] "[35m[1mGET /audio/input/Searching%20for%20Purpose.wav HTTP/1.1[0m" 206 -
+2025-10-12 17:14:23 - INFO - 127.0.0.1 - - [12/Oct/2025 17:14:23] "[35m[1mGET /audio/input/Drowning%20in%20Expectations.wav HTTP/1.1[0m" 206 -
+2025-10-12 17:14:23 - INFO - 127.0.0.1 - - [12/Oct/2025 17:14:23] "[35m[1mGET /audio/input/Searching%20for%20Purpose.wav HTTP/1.1[0m" 206 -
+2025-10-12 17:14:37 - INFO - 🎛️ Verwende Custom-Settings: LUFS -10.0dB, Kompression Ja
+2025-10-12 17:14:37 - INFO - Starte Batch-Verarbeitung von 2 Dateien
+2025-10-12 17:14:37 - INFO - Verarbeite 1/2: Drowning in Expectations.wav
+2025-10-12 17:14:37 - INFO - 🔍 Starte Verarbeitung von input\Drowning in Expectations.wav
+2025-10-12 17:14:37 - INFO - 📂 Datei geladen: (15023999, 2), 48000Hz, Dauer: 313.0s
+2025-10-12 17:14:37 - INFO - 🔄 Resample von 48000Hz auf 44100Hz
+2025-10-12 17:14:43 - INFO - 127.0.0.1 - - [12/Oct/2025 17:14:43] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2025-10-12 17:14:43 - INFO - 127.0.0.1 - - [12/Oct/2025 17:14:43] "[35m[1mGET /audio/input/Drowning%20in%20Expectations.wav HTTP/1.1[0m" 206 -
+2025-10-12 17:14:44 - INFO - 127.0.0.1 - - [12/Oct/2025 17:14:44] "[35m[1mGET /audio/output/Drowning%20in%20Expectations_mastered.wav HTTP/1.1[0m" 206 -
+2025-10-12 17:14:45 - INFO - 127.0.0.1 - - [12/Oct/2025 17:14:45] "[35m[1mGET /audio/output/Drowning%20in%20Expectations_mastered.wav HTTP/1.1[0m" 206 -
+2025-10-12 17:14:45 - INFO - 127.0.0.1 - - [12/Oct/2025 17:14:45] "[35m[1mGET /audio/output/Drowning%20in%20Expectations_mastered.wav HTTP/1.1[0m" 206 -
+2025-10-12 17:14:52 - INFO - 📊 ORIGINAL - LUFS: -15.09dB, Peak: -3.59dBTP, RMS: -15.81dB
+2025-10-12 17:14:52 - INFO - 🎛️  Schritt 1: High-Pass Filter (20Hz)
+2025-10-12 17:14:54 - INFO -    → LUFS: -15.1dB (Δ-0.01dB)
+2025-10-12 17:14:54 - INFO - 🔊 Schritt 2: Peak Limiter (-1.0dBTP) - Anti-Clipping
+2025-10-12 17:14:55 - INFO -    → Peak: -2.14dBTP (Δ0.0dB)
+2025-10-12 17:14:55 - INFO - 🗜️  Schritt 3: Kompression (3.0:1 @ -20.0dB)
+2025-10-12 17:14:58 - INFO -    → LUFS: -19.7dB (Δ-4.6dB)
+2025-10-12 17:14:58 - INFO - 📏 Schritt 4: LUFS-Normalisierung auf -9.0dB (Headroom für Limiter)
+2025-10-12 17:14:59 - INFO - 127.0.0.1 - - [12/Oct/2025 17:14:59] "[35m[1mGET /audio/input/Searching%20for%20Purpose.wav HTTP/1.1[0m" 206 -
+2025-10-12 17:14:59 - INFO - 127.0.0.1 - - [12/Oct/2025 17:14:59] "[35m[1mGET /audio/input/Searching%20for%20Purpose.wav HTTP/1.1[0m" 206 -
+2025-10-12 17:14:59 - INFO - 127.0.0.1 - - [12/Oct/2025 17:14:59] "[35m[1mGET /audio/input/Searching%20for%20Purpose.wav HTTP/1.1[0m" 206 -
+2025-10-12 17:15:00 - INFO - 127.0.0.1 - - [12/Oct/2025 17:15:00] "[35m[1mGET /audio/input/Searching%20for%20Purpose.wav HTTP/1.1[0m" 206 -
+2025-10-12 17:15:00 - INFO - 127.0.0.1 - - [12/Oct/2025 17:15:00] "[35m[1mGET /audio/input/Searching%20for%20Purpose.wav HTTP/1.1[0m" 206 -
+2025-10-12 17:15:00 - INFO - 127.0.0.1 - - [12/Oct/2025 17:15:00] "[35m[1mGET /audio/input/Searching%20for%20Purpose.wav HTTP/1.1[0m" 206 -
+2025-10-12 17:15:01 - INFO -    → LUFS: -9.0dB (Δ10.7dB)
+2025-10-12 17:15:01 - INFO - 💾 Speichere als output\Drowning in Expectations_mastered.wav
+2025-10-12 17:15:03 - INFO - ✅ VERARBEITUNG ABGESCHLOSSEN
+2025-10-12 17:15:03 - INFO -    Original → Final: LUFS -15.09dB → -9.0dB
+2025-10-12 17:15:03 - INFO -    Peak: -3.59dBTP → -3.35dBTP
+2025-10-12 17:15:03 - INFO -    Dynamik: 12.22dB → 6.43dB
+2025-10-12 17:15:03 - INFO - Verarbeite 2/2: Searching for Purpose.wav
+2025-10-12 17:15:03 - INFO - 🔍 Starte Verarbeitung von input\Searching for Purpose.wav
+2025-10-12 17:15:03 - INFO - 📂 Datei geladen: (10727039, 2), 48000Hz, Dauer: 223.5s
+2025-10-12 17:15:03 - INFO - 🔄 Resample von 48000Hz auf 44100Hz
+2025-10-12 17:15:10 - INFO - 📊 ORIGINAL - LUFS: -14.94dB, Peak: -5.29dBTP, RMS: -16.72dB
+2025-10-12 17:15:10 - INFO - 🎛️  Schritt 1: High-Pass Filter (20Hz)
+2025-10-12 17:15:11 - INFO -    → LUFS: -14.94dB (Δ0.0dB)
+2025-10-12 17:15:11 - INFO - 🔊 Schritt 2: Peak Limiter (-1.0dBTP) - Anti-Clipping
+2025-10-12 17:15:12 - INFO -    → Peak: -3.56dBTP (Δ0.0dB)
+2025-10-12 17:15:12 - INFO - 🗜️  Schritt 3: Kompression (3.0:1 @ -20.0dB)
+2025-10-12 17:15:13 - INFO -    → LUFS: -19.09dB (Δ-4.15dB)
+2025-10-12 17:15:13 - INFO - 📏 Schritt 4: LUFS-Normalisierung auf -9.0dB (Headroom für Limiter)
+2025-10-12 17:15:15 - INFO -    → LUFS: -9.0dB (Δ10.09dB)
+2025-10-12 17:15:15 - INFO - 💾 Speichere als output\Searching for Purpose_mastered.wav
+2025-10-12 17:15:16 - INFO - ✅ VERARBEITUNG ABGESCHLOSSEN
+2025-10-12 17:15:16 - INFO -    Original → Final: LUFS -14.94dB → -9.0dB
+2025-10-12 17:15:16 - INFO -    Peak: -5.29dBTP → -4.43dBTP
+2025-10-12 17:15:16 - INFO -    Dynamik: 11.42dB → 6.36dB
+2025-10-12 17:15:16 - INFO - Batch-Verarbeitung abgeschlossen: 2 erfolgreich, 0 Fehler
+2025-10-12 17:15:16 - INFO - 127.0.0.1 - - [12/Oct/2025 17:15:16] "POST /process HTTP/1.1" 200 -
+2025-10-12 17:15:24 - INFO - 127.0.0.1 - - [12/Oct/2025 17:15:24] "GET / HTTP/1.1" 200 -
+2025-10-12 17:15:25 - INFO - 127.0.0.1 - - [12/Oct/2025 17:15:25] "[35m[1mGET /audio/input/Searching%20for%20Purpose.wav HTTP/1.1[0m" 206 -
+2025-10-12 17:15:25 - INFO - 127.0.0.1 - - [12/Oct/2025 17:15:25] "[35m[1mGET /audio/input/Drowning%20in%20Expectations.wav HTTP/1.1[0m" 206 -
+2025-10-12 17:15:29 - INFO - 127.0.0.1 - - [12/Oct/2025 17:15:29] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2025-10-12 17:15:29 - INFO - 127.0.0.1 - - [12/Oct/2025 17:15:29] "[35m[1mGET /audio/input/Drowning%20in%20Expectations.wav HTTP/1.1[0m" 206 -
+2025-10-12 17:15:30 - INFO - 127.0.0.1 - - [12/Oct/2025 17:15:30] "[35m[1mGET /audio/input/Drowning%20in%20Expectations.wav HTTP/1.1[0m" 206 -
+2025-10-12 17:15:31 - INFO - 127.0.0.1 - - [12/Oct/2025 17:15:31] "[35m[1mGET /audio/output/Drowning%20in%20Expectations_mastered.wav HTTP/1.1[0m" 206 -
+2025-10-12 17:15:32 - INFO - 127.0.0.1 - - [12/Oct/2025 17:15:32] "[35m[1mGET /audio/output/Drowning%20in%20Expectations_mastered.wav HTTP/1.1[0m" 206 -
+2025-10-12 17:15:32 - INFO - 127.0.0.1 - - [12/Oct/2025 17:15:32] "[35m[1mGET /audio/output/Drowning%20in%20Expectations_mastered.wav HTTP/1.1[0m" 206 -
+2025-10-12 17:15:50 - INFO - 127.0.0.1 - - [12/Oct/2025 17:15:50] "GET / HTTP/1.1" 200 -
+2025-10-12 17:15:51 - INFO - 127.0.0.1 - - [12/Oct/2025 17:15:51] "[35m[1mGET /audio/input/Searching%20for%20Purpose.wav HTTP/1.1[0m" 206 -
+2025-10-12 17:15:51 - INFO - 127.0.0.1 - - [12/Oct/2025 17:15:51] "[35m[1mGET /audio/input/Drowning%20in%20Expectations.wav HTTP/1.1[0m" 206 -
+2025-10-12 17:15:51 - INFO - 127.0.0.1 - - [12/Oct/2025 17:15:51] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -

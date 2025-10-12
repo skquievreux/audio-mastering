@@ -8,11 +8,15 @@ Batch-Verarbeitung von Audio-Dateien mit professioneller Mastering-Chain.
 import argparse
 import logging
 import sys
+import threading
+import webbrowser
+import time
 from datetime import datetime
 from pathlib import Path
 
 from config import INPUT_DIR, OUTPUT_DIR, LOGS_DIR
 from batch_processor import BatchProcessor
+from web_server import app
 
 
 def setup_logging(log_level: str = "INFO") -> None:
@@ -93,6 +97,19 @@ Verfügbare Presets:
         help="Anzahl paralleler Worker (Standard: 1)"
     )
 
+    parser.add_argument(
+        "--web",
+        action="store_true",
+        help="Webserver nach Verarbeitung starten"
+    )
+
+    parser.add_argument(
+        "--port",
+        type=int,
+        default=8080,
+        help="Port für Webserver (Standard: 8080)"
+    )
+
     return parser.parse_args()
 
 
@@ -110,6 +127,34 @@ def validate_directories(input_dir: Path, output_dir: Path) -> bool:
     output_dir.mkdir(parents=True, exist_ok=True)
 
     return True
+
+
+def start_web_server(port: int = 8080) -> None:
+    """Webserver in separatem Thread starten"""
+    def run_server():
+        try:
+            logger = logging.getLogger(__name__)
+            logger.info(f"🌐 Webserver startet auf Port {port}")
+            app.run(host='0.0.0.0', port=port, debug=False, use_reloader=False)
+        except Exception as e:
+            logger.error(f"❌ Webserver-Fehler: {e}")
+
+    server_thread = threading.Thread(target=run_server, daemon=True)
+    server_thread.start()
+
+    # Warte kurz, bis Server gestartet ist
+    time.sleep(1)
+
+    # Browser öffnen
+    try:
+        url = f"http://localhost:{port}"
+        webbrowser.open(url)
+        logger = logging.getLogger(__name__)
+        logger.info(f"🌐 Browser geöffnet: {url}")
+    except Exception as e:
+        logger = logging.getLogger(__name__)
+        logger.warning(f"⚠️  Browser konnte nicht automatisch geöffnet werden: {e}")
+        logger.info(f"🌐 Webserver läuft unter: http://localhost:{port}")
 
 
 def main() -> int:
@@ -152,6 +197,21 @@ def main() -> int:
             return 1
         else:
             logger.info(f"✅ {results['files_processed']} Dateien erfolgreich verarbeitet")
+
+            # Webserver starten falls gewünscht
+            if args.web:
+                start_web_server(args.port)
+
+                # Bei Webserver-Modus: Warte auf Benutzerabbruch
+                try:
+                    print(f"\n🌐 Webserver läuft auf http://localhost:{args.port}")
+                    print("Drücke Ctrl+C zum Beenden...")
+                    while True:
+                        time.sleep(1)
+                except KeyboardInterrupt:
+                    print("\n❌ Webserver beendet")
+                    return 0
+
             return 0
 
     except KeyboardInterrupt:

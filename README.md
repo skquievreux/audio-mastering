@@ -13,9 +13,17 @@ pip install -r requirements.txt
 Lege deine WAV oder MP3-Dateien in den `input/` Ordner.
 
 ### 3. Mastering starten
+
+#### Option A: Kommandozeile (traditionell)
 ```bash
 python mastering_tool.py
 ```
+
+#### Option B: Weboberfläche (empfohlen)
+```bash
+python mastering_tool.py --web
+```
+Der Browser öffnet sich automatisch unter `http://localhost:8080`
 
 ### 4. Ergebnisse finden
 Die gemasterten Dateien findest du im `output/` Ordner mit dem Suffix "_mastered".
@@ -27,6 +35,10 @@ Die gemasterten Dateien findest du im `output/` Ordner mit dem Suffix "_mastered
 - **Qualitätskontrolle**: Automatische LUFS und Peak-Messungen
 - **Detaillierte Reports**: Übersicht über alle Verarbeitungsergebnisse
 - **Fehlerbehandlung**: Robuste Verarbeitung mit aussagekräftigen Meldungen
+- **Weboberfläche**: Moderne Browser-basierte Benutzeroberfläche mit A/B-Vergleich
+- **Intelligente Presets**: Automatische Analyse und Preset-Empfehlungen
+- **Drag & Drop Upload**: Einfacher Datei-Upload über die Weboberfläche
+- **One-Click Mastering**: Direkter Start der Verarbeitung aus dem Browser
 
 ## 🎛️ Mastering-Standards
 
@@ -59,6 +71,8 @@ python mastering_tool.py --verbose
 -o, --output    Output-Ordner (Standard: output/)
 --verbose, -v   Detaillierte Ausgabe
 --workers       Anzahl paralleler Worker (Standard: 1)
+--web           Weboberfläche starten (Standard: localhost:8080)
+--port          Port für Weboberfläche (Standard: 8080)
 ```
 
 ## 📊 Beispiel-Output

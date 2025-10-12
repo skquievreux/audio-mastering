@@ -74,6 +74,14 @@ class BatchProcessor:
         if max_workers == 1:
             # Sequentiell verarbeiten
             for i, input_file in enumerate(files, 1):
+                # Prüfen ob bereits verarbeitet
+                output_filename = f"{input_file.stem}{MASTERED_SUFFIX}{input_file.suffix.lower()}"
+                output_path = self.output_dir / output_filename
+
+                if output_path.exists():
+                    logger.info(f"Überspringe {input_file.name} - bereits verarbeitet")
+                    continue
+
                 logger.info(f"Verarbeite {i}/{len(files)}: {input_file.name}")
                 try:
                     result = self._process_single_file(input_file)
@@ -99,11 +107,17 @@ class BatchProcessor:
 
         total_time = time.time() - start_time
 
+        # Berechne übersprungene Dateien
+        total_input_files = len(files)
+        processed_or_failed = len(results) + len(errors)
+        files_skipped = total_input_files - processed_or_failed
+
         summary = {
             'files_processed': len(results),
             'files_failed': len(errors),
+            'files_skipped': files_skipped,
             'total_time_sec': round(total_time, 2),
-            'avg_time_per_file': round(total_time / len(files), 2) if files else 0,
+            'avg_time_per_file': round(total_time / processed_or_failed, 2) if processed_or_failed else 0,
             'results': results,
             'errors': errors
         }

@@ -38,6 +38,10 @@ Section "Audio Mastering Tool" SecApp
     CreateDirectory "$INSTDIR\output"
     CreateDirectory "$INSTDIR\logs"
 
+    ; Webserver-Modus Verknüpfung
+    CreateShortCut "$DESKTOP\Audio Mastering Tool (Web).lnk" "$INSTDIR\AudioMasteringTool.exe" "--web" "$INSTDIR\AudioMasteringTool.exe"
+    CreateShortCut "$SMPROGRAMS\Audio Mastering Tool\Audio Mastering Tool (Web).lnk" "$INSTDIR\AudioMasteringTool.exe" "--web" "$INSTDIR\AudioMasteringTool.exe"
+
     ; Desktop-Verknüpfung erstellen
     CreateShortCut "$DESKTOP\Audio Mastering Tool.lnk" "$INSTDIR\AudioMasteringTool.exe"
 
@@ -55,9 +59,11 @@ SectionEnd
 Section "Uninstall"
     ; Desktop-Verknüpfung entfernen
     Delete "$DESKTOP\Audio Mastering Tool.lnk"
+    Delete "$DESKTOP\Audio Mastering Tool (Web).lnk"
 
     ; Startmenü entfernen
     Delete "$SMPROGRAMS\Audio Mastering Tool\Audio Mastering Tool.lnk"
+    Delete "$SMPROGRAMS\Audio Mastering Tool\Audio Mastering Tool (Web).lnk"
     Delete "$SMPROGRAMS\Audio Mastering Tool\Uninstall.lnk"
     RMDir "$SMPROGRAMS\Audio Mastering Tool"
 

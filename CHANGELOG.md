@@ -5,6 +5,33 @@ Alle wichtigen Änderungen am Audio Mastering Tool werden hier dokumentiert.
 Das Format basiert auf [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 und dieses Projekt hält sich an [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2025-10-12
+
+### 🎵 Added - Neue Features
+- **Intelligente Preset-Vorschläge**: Automatische Analyse der Audio-Dateien und Empfehlung des optimalen Mastering-Presets basierend auf LUFS-Werten
+- **Drag & Drop Upload**: Moderne Datei-Upload-Oberfläche mit Drag-and-Drop-Funktionalität für mehrere Dateien gleichzeitig
+- **Weboberfläche-Upload**: Direkter Datei-Upload über die Weboberfläche mit automatischer Speicherung im Input-Ordner
+- **Mastering über Weboberfläche**: One-Click-Mastering-Start direkt aus der Weboberfläche mit verschiedenen Preset-Optionen
+- **Löschen-Funktion**: Möglichkeit, gemasterte Dateien direkt über die Weboberfläche zu löschen
+- **Versionsanzeige**: App-Version wird prominent in der Weboberfläche angezeigt
+- **Vermeidung doppelter Verarbeitung**: Automatische Erkennung bereits verarbeiteter Dateien zur Vermeidung unnötiger Neuverarbeitung
+
+### 🔧 Changed - Änderungen
+- **Verbesserte Weboberfläche**: Moderneres Design mit besserer Benutzerführung und responsivem Layout
+- **Upload-Prozess**: Nahtlose Integration von Upload und Verarbeitung in einem Workflow
+- **Batch-Verarbeitung**: Optimierte Logik zur Vermeidung doppelter Verarbeitung bereits gemasterter Dateien
+
+### 🐛 Fixed - Bugfixes
+- **Upload-Dateien**: Hochgeladene Dateien werden jetzt korrekt im Input-Ordner gespeichert und verarbeitet
+- **Webserver-Stabilität**: Verbesserte Fehlerbehandlung und Stabilität des lokalen Webservers
+
+### 📚 Technical Details
+- **Neue Webserver-Endpoints**: `/upload`, `/process`, `/delete/<filename>` für vollständige Weboberfläche-Integration
+- **Audio-Analyse für Presets**: Automatische LUFS-basierte Preset-Empfehlungen
+- **Erweiterte Batch-Verarbeitung**: Unterstützung für Überspringen bereits verarbeiteter Dateien
+
+---
+
 ## [1.0.0] - 2025-10-12
 
 ### 🎵 Added - Neue Features
