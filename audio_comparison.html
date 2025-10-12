@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎵 Audio Mastering Vergleich</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        .comparison-grid {
+            display: grid;
+            gap: 30px;
+            padding: 30px;
+        }
+
+        .comparison-item {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            border-left: 5px solid #4facfe;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .comparison-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .file-title {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .audio-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .audio-player {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .audio-label {
+            font-weight: bold;
+            color: #666;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .audio-label.original {
+            color: #e74c3c;
+        }
+
+        .audio-label.mastered {
+            color: #27ae60;
+        }
+
+        audio {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+
+        button {
+            background: #4facfe;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background: #00c6fb;
+        }
+
+        button.play-both {
+            background: #27ae60;
+        }
+
+        button.play-both:hover {
+            background: #229954;
+        }
+
+        .stats {
+            background: #ecf0f1;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        .stats h4 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #4facfe;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .no-files {
+            text-align: center;
+            padding: 50px;
+            color: #666;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: #666;
+        }
+
+        @media (max-width: 768px) {
+            .audio-section {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎵 Audio Mastering Vergleich</h1>
+            <p>Vergleiche Original- und gemasterte Dateien | Qualitätskontrolle</p>
+        </div>
+
+        <div id="content" class="loading">
+            🔍 Lade Audio-Dateien...
+        </div>
+    </div>
+
+    <script>
+        // Audio-Dateien laden und anzeigen
+        async function loadAudioFiles() {
+            try {
+                // Simuliere Datei-Listing (in echter Anwendung würde dies von einem Server kommen)
+                const mockFiles = [
+                    {
+                        name: 'Drowning in Expectations.wav',
+                        original: 'input/Drowning in Expectations.wav',
+                        mastered: 'output/Drowning in Expectations_mastered.wav',
+                        stats: {
+                            original_lufs: -15.09,
+                            final_lufs: -13.55,
+                            original_peak: -3.59,
+                            final_peak: -1.0,
+                            delta_lufs: 1.54,
+                            delta_peak: 2.59
+                        }
+                    },
+                    {
+                        name: 'Searching for Purpose.wav',
+                        original: 'input/Searching for Purpose.wav',
+                        mastered: 'output/Searching for Purpose_mastered.wav',
+                        stats: {
+                            original_lufs: -14.94,
+                            final_lufs: -11.96,
+                            original_peak: -5.29,
+                            final_peak: -1.0,
+                            delta_lufs: 2.98,
+                            delta_peak: 4.29
+                        }
+                    }
+                ];
+
+                displayComparisons(mockFiles);
+            } catch (error) {
+                console.error('Fehler beim Laden der Dateien:', error);
+                document.getElementById('content').innerHTML = `
+                    <div class="no-files">
+                        ❌ Fehler beim Laden der Audio-Dateien<br>
+                        Stelle sicher, dass die input/ und output/ Ordner existieren.
+                    </div>
+                `;
+            }
+        }
+
+        function displayComparisons(files) {
+            const content = document.getElementById('content');
+
+            if (files.length === 0) {
+                content.innerHTML = `
+                    <div class="no-files">
+                        📁 Keine Audio-Dateien gefunden<br>
+                        Lege Dateien in die input/ und output/ Ordner.
+                    </div>
+                `;
+                return;
+            }
+
+            const html = `
+                <div class="comparison-grid">
+                    ${files.map(file => createComparisonHTML(file)).join('')}
+                </div>
+            `;
+
+            content.innerHTML = html;
+
+            // Event-Listener für Play-Buttons hinzufügen
+            files.forEach((file, index) => {
+                setupAudioControls(index, file);
+            });
+        }
+
+        function createComparisonHTML(file) {
+            return `
+                <div class="comparison-item">
+                    <div class="file-title">🎵 ${file.name}</div>
+
+                    <div class="audio-section">
+                        <div class="audio-player">
+                            <div class="audio-label original">🎤 ORIGINAL</div>
+                            <audio id="original-${file.name}" controls preload="metadata">
+                                <source src="${file.original}" type="audio/wav">
+                                Ihr Browser unterstützt das Audio-Element nicht.
+                            </audio>
+                        </div>
+
+                        <div class="audio-player">
+                            <div class="audio-label mastered">🎛️ MASTERED</div>
+                            <audio id="mastered-${file.name}" controls preload="metadata">
+                                <source src="${file.mastered}" type="audio/wav">
+                                Ihr Browser unterstützt das Audio-Element nicht.
+                            </audio>
+                        </div>
+                    </div>
+
+                    <div class="controls">
+                        <button class="play-original" data-file="${file.name}">▶️ Original</button>
+                        <button class="play-mastered" data-file="${file.name}">▶️ Mastered</button>
+                        <button class="play-both" data-file="${file.name}">🎵 Vergleich</button>
+                        <button class="stop-all" data-file="${file.name}">⏹️ Stop</button>
+                    </div>
+
+                    <div class="stats">
+                        <h4>📊 Verarbeitungsstatistik</h4>
+                        <div class="stats-grid">
+                            <div class="stat-item">
+                                <div class="stat-value">${file.stats.original_lufs.toFixed(1)} dB</div>
+                                <div class="stat-label">Original LUFS</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">${file.stats.final_lufs.toFixed(1)} dB</div>
+                                <div class="stat-label">Final LUFS</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">${file.stats.delta_lufs > 0 ? '+' : ''}${file.stats.delta_lufs.toFixed(1)} dB</div>
+                                <div class="stat-label">LUFS Δ</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">${file.stats.final_peak.toFixed(1)} dBTP</div>
+                                <div class="stat-label">Peak (begrenzt)</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function setupAudioControls(index, file) {
+            const originalAudio = document.getElementById(`original-${file.name}`);
+            const masteredAudio = document.getElementById(`mastered-${file.name}`);
+
+            // Play Original
+            document.querySelector(`[data-file="${file.name}"].play-original`).addEventListener('click', () => {
+                stopAllAudio();
+                originalAudio.play();
+            });
+
+            // Play Mastered
+            document.querySelector(`[data-file="${file.name}"].play-mastered`).addEventListener('click', () => {
+                stopAllAudio();
+                masteredAudio.play();
+            });
+
+            // Play Both (synchron)
+            document.querySelector(`[data-file="${file.name}"].play-both`).addEventListener('click', () => {
+                stopAllAudio();
+
+                // Synchrones Abspielen
+                originalAudio.currentTime = 0;
+                masteredAudio.currentTime = 0;
+
+                originalAudio.play();
+                masteredAudio.play();
+            });
+
+            // Stop All
+            document.querySelector(`[data-file="${file.name}"].stop-all`).addEventListener('click', () => {
+                stopAllAudio();
+            });
+        }
+
+        function stopAllAudio() {
+            const allAudio = document.querySelectorAll('audio');
+            allAudio.forEach(audio => {
+                audio.pause();
+                audio.currentTime = 0;
+            });
+        }
+
+        // Lade Dateien beim Start
+        document.addEventListener('DOMContentLoaded', loadAudioFiles);
+
+        // Tastatur-Shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.key === ' ') {
+                e.preventDefault();
+                // Space für Play/Pause des ersten aktiven Players
+                const playing = document.querySelector('audio:not([paused])');
+                if (playing) {
+                    playing.pause();
+                } else {
+                    const firstAudio = document.querySelector('audio');
+                    if (firstAudio) firstAudio.play();
+                }
+            }
+        });
+    </script>
+</body>
+</html>

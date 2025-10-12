@@ -1,0 +1,41 @@
+2025-10-12 14:48:37 - INFO - 🎵 Audio Mastering Tool gestartet
+2025-10-12 14:48:37 - INFO - Input-Ordner: C:\CODE\GIT\Audio-Mastering\input
+2025-10-12 14:48:37 - INFO - Output-Ordner: C:\CODE\GIT\Audio-Mastering\output
+2025-10-12 14:48:37 - INFO - 🎛️ Verwende Preset 'gentle': LUFS -10.0dB, Kompression Nein
+2025-10-12 14:48:37 - INFO - Starte Batch-Verarbeitung von 2 Dateien
+2025-10-12 14:48:37 - INFO - Verarbeite 1/2: Drowning in Expectations.wav
+2025-10-12 14:48:37 - INFO - 🔍 Starte Verarbeitung von input\Drowning in Expectations.wav
+2025-10-12 14:48:37 - INFO - 📂 Datei geladen: (15023999, 2), 48000Hz, Dauer: 313.0s
+2025-10-12 14:48:37 - INFO - 🔄 Resample von 48000Hz auf 44100Hz
+2025-10-12 14:48:54 - INFO - 📊 ORIGINAL - LUFS: -15.09dB, Peak: -3.59dBTP, RMS: -15.81dB
+2025-10-12 14:48:54 - INFO - 🎛️  Schritt 1: High-Pass Filter (20Hz)
+2025-10-12 14:48:55 - INFO -    → LUFS: -15.1dB (Δ-0.01dB)
+2025-10-12 14:48:55 - INFO - 🗜️  Schritt 2: Kompression übersprungen (Preset: gentle)
+2025-10-12 14:48:55 - INFO - 📏 Schritt 3: LUFS-Normalisierung auf -10.0dB
+2025-10-12 14:48:57 - INFO -    → LUFS: -10.0dB (Δ5.1dB)
+2025-10-12 14:48:57 - INFO - 🔊 Schritt 4: Peak Limiter (-1.0dBTP)
+2025-10-12 14:48:59 - INFO -    → Peak: -1.0dBTP (Δ-3.96dB)
+2025-10-12 14:48:59 - INFO - 💾 Speichere als output\Drowning in Expectations_mastered.wav
+2025-10-12 14:49:01 - INFO - ✅ VERARBEITUNG ABGESCHLOSSEN
+2025-10-12 14:49:01 - INFO -    Original → Final: LUFS -15.09dB → -10.02dB
+2025-10-12 14:49:01 - INFO -    Peak: -3.59dBTP → -1.0dBTP
+2025-10-12 14:49:01 - INFO -    Dynamik: 12.22dB → 9.73dB
+2025-10-12 14:49:01 - INFO - Verarbeite 2/2: Searching for Purpose.wav
+2025-10-12 14:49:01 - INFO - 🔍 Starte Verarbeitung von input\Searching for Purpose.wav
+2025-10-12 14:49:01 - INFO - 📂 Datei geladen: (10727039, 2), 48000Hz, Dauer: 223.5s
+2025-10-12 14:49:01 - INFO - 🔄 Resample von 48000Hz auf 44100Hz
+2025-10-12 14:49:15 - INFO - 📊 ORIGINAL - LUFS: -14.94dB, Peak: -5.29dBTP, RMS: -16.72dB
+2025-10-12 14:49:15 - INFO - 🎛️  Schritt 1: High-Pass Filter (20Hz)
+2025-10-12 14:49:16 - INFO -    → LUFS: -14.94dB (Δ0.0dB)
+2025-10-12 14:49:16 - INFO - 🗜️  Schritt 2: Kompression übersprungen (Preset: gentle)
+2025-10-12 14:49:16 - INFO - 📏 Schritt 3: LUFS-Normalisierung auf -10.0dB
+2025-10-12 14:49:18 - INFO -    → LUFS: -10.0dB (Δ4.94dB)
+2025-10-12 14:49:18 - INFO - 🔊 Schritt 4: Peak Limiter (-1.0dBTP)
+2025-10-12 14:49:19 - INFO -    → Peak: -1.0dBTP (Δ-2.38dB)
+2025-10-12 14:49:19 - INFO - 💾 Speichere als output\Searching for Purpose_mastered.wav
+2025-10-12 14:49:20 - INFO - ✅ VERARBEITUNG ABGESCHLOSSEN
+2025-10-12 14:49:20 - INFO -    Original → Final: LUFS -14.94dB → -10.0dB
+2025-10-12 14:49:20 - INFO -    Peak: -5.29dBTP → -1.0dBTP
+2025-10-12 14:49:20 - INFO -    Dynamik: 11.42dB → 10.79dB
+2025-10-12 14:49:20 - INFO - Batch-Verarbeitung abgeschlossen: 2 erfolgreich, 0 Fehler
+2025-10-12 14:49:20 - INFO - ✅ 2 Dateien erfolgreich verarbeitet
