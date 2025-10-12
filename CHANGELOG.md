@@ -5,6 +5,20 @@ Alle wichtigen Änderungen am Audio Mastering Tool werden hier dokumentiert.
 Das Format basiert auf [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 und dieses Projekt hält sich an [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.1] - 2025-10-12
+
+### 🐛 Fixed - Bugfixes
+- **Preset-Konfiguration vereinheitlicht**: Klare Zuordnung zwischen "Automatisch" und "Suno AI" Preset
+- **Weboberfläche Preset-Anzeige**: Verwendetes Preset wird jetzt in der Statistik angezeigt
+- **Default-Preset korrigiert**: Alle Komponenten verwenden jetzt konsistent "suno" als Standard
+- **Automatische Analyse**: Empfiehlt immer Suno AI Preset für optimale AI-Musik-Verarbeitung
+
+### 🔧 Changed - Änderungen
+- **Preset-Hierarchie geklärt**: "Automatisch" = Suno AI, "Suno AI" = explizit Suno AI
+- **Weboberfläche Labels**: Klare Bezeichnungen für bessere Benutzerführung
+
+---
+
 ## [1.1.0] - 2025-10-12
 
 ### 🎵 Added - Neue Features
@@ -83,6 +97,8 @@ und dieses Projekt hält sich an [Semantic Versioning](https://semver.org/spec/v
 
 ## Version History
 
+- **1.1.1** (2025-10-12): Bugfix-Release - Preset-Konfiguration vereinheitlicht
+- **1.1.0** (2025-10-12): Weboberfläche-Integration mit Upload und Mastering
 - **1.0.0** (2025-10-12): Erste stabile Release mit allen Kernfunktionen
 - **0.1.0-alpha** (2025-10-10): Initialer Prototyp mit grundlegender Funktionalität
 

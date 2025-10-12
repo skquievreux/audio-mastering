@@ -65,10 +65,7 @@ def create_installer():
 
     nsis_script = f"""
 ;NSIS Installer Script für Audio Mastering Tool
-;Version 1.0.0
-
-!include "MUI2.nsh"
-!include "FileFunc.nsh"
+;Version 1.1.0
 
 Name "Audio Mastering Tool v1.1.0"
 OutFile "AudioMasteringTool_Installer_v1.1.0.exe"
@@ -76,19 +73,11 @@ Unicode True
 InstallDir "$PROGRAMFILES\\Audio Mastering Tool"
 InstallDirRegKey HKCU "Software\\AudioMasteringTool" ""
 
-;Modern UI Konfiguration
-!define MUI_ABORTWARNING
-!define MUI_ICON "icon.ico" ; Falls vorhanden
-!define MUI_UNICON "icon.ico"
-
 ;Willkommens-Seite
-!insertmacro MUI_PAGE_WELCOME
-!insertmacro MUI_PAGE_DIRECTORY
-!insertmacro MUI_PAGE_INSTFILES
-!insertmacro MUI_PAGE_FINISH
+Page directory
+Page instfiles
 
 ;Sprachen
-!insertmacro MUI_LANGUAGE "German"
 
 Section "Audio Mastering Tool" SecApp
     SectionIn RO
@@ -153,16 +142,33 @@ SectionEnd
 
     print("📝 NSIS-Script erstellt: installer.nsi")
 
-    # Installer kompilieren (falls makensis verfügbar)
-    try:
-        result = subprocess.run(["makensis", "installer.nsi"], check=True, capture_output=True, text=True)
-        print("✅ Installer erfolgreich kompiliert!")
-        print("📁 Ausgabe: AudioMasteringTool_Installer_v1.0.0.exe")
-    except FileNotFoundError:
+    # Installer kompilieren (versuche verschiedene Pfade)
+    makensis_paths = [
+        "makensis",  # Falls im PATH
+        r"C:\Program Files (x86)\NSIS\makensis.exe",  # Standard-Installationspfad
+        r"C:\Program Files\NSIS\makensis.exe",  # Alternative
+    ]
+
+    installer_compiled = False
+    for makensis_path in makensis_paths:
+        try:
+            result = subprocess.run([makensis_path, "installer.nsi"], check=True, capture_output=True, text=True)
+            print("✅ Installer erfolgreich kompiliert!")
+            print("📁 Ausgabe: AudioMasteringTool_Installer_v1.1.0.exe")
+            installer_compiled = True
+            break
+        except FileNotFoundError:
+            continue  # Versuche nächsten Pfad
+        except subprocess.CalledProcessError as e:
+            print(f"❌ Installer-Kompilierung fehlgeschlagen: {e}")
+            break
+
+    if not installer_compiled:
         print("⚠️  makensis nicht gefunden. Installer manuell kompilieren:")
+        print("   Mögliche Befehle:")
         print("   makensis installer.nsi")
-    except subprocess.CalledProcessError as e:
-        print(f"❌ Installer-Kompilierung fehlgeschlagen: {e}")
+        print('   "C:\\Program Files (x86)\\NSIS\\makensis.exe" installer.nsi')
+        print('   "C:\\Program Files\\NSIS\\makensis.exe" installer.nsi')
 
 if __name__ == "__main__":
     print("🚀 Audio Mastering Tool - Build & Package")

@@ -22,7 +22,7 @@ class BatchProcessor:
     - Sammelt Ergebnisse für Report
     """
 
-    def __init__(self, input_dir: Path = INPUT_DIR, output_dir: Path = OUTPUT_DIR, preset: str = 'default'):
+    def __init__(self, input_dir: Path = INPUT_DIR, output_dir: Path = OUTPUT_DIR, preset: str = 'suno'):
         self.input_dir = Path(input_dir)
         self.output_dir = Path(output_dir)
         self.processor = AudioProcessor(preset=preset)
