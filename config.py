@@ -5,7 +5,7 @@ Konfiguration für Audio Mastering Tool
 from pathlib import Path
 
 # Version
-VERSION = "1.2.0"
+VERSION = "1.3.0"
 
 # Audio-Standards
 TARGET_LUFS = -10.0
