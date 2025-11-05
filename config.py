@@ -4,6 +4,9 @@ Konfiguration für Audio Mastering Tool
 
 from pathlib import Path
 
+# Version
+VERSION = "1.2.0"
+
 # Audio-Standards
 TARGET_LUFS = -10.0
 TRUE_PEAK_CEILING_DBTP = -1.0

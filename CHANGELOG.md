@@ -5,6 +5,43 @@ Alle wichtigen Änderungen am Audio Mastering Tool werden hier dokumentiert.
 Das Format basiert auf [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 und dieses Projekt hält sich an [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2025-11-05
+
+### 🔒 Security - Sicherheitsfixes
+- **KRITISCH: Path Traversal geschlossen**: Vollständige Input-Validierung in `/audio/<folder>/<filename>` Endpoint mit `secure_filename()` und `safe_join()`
+- **Dateigrößen-Validierung**: Upload-Endpoint prüft jetzt Dateigrößen gegen `MAX_FILE_SIZE_MB` (500MB) mit HTTP 413 Response
+- **Filename Sanitization**: Alle Datei-Endpunkte verwenden jetzt `secure_filename()` zur Vermeidung von Injection-Angriffen
+
+### 🐛 Fixed - Bugfixes
+- **Syntax-Fehler behoben**: Entferntes ungültiges `else`-Statement nach `except` Block in `delete_file()` (web_server.py:906)
+- **Race Condition eliminiert**: Atomare Prüfung in `_process_single_file()` verhindert TOCTOU-Fehler bei Batch-Verarbeitung
+- **Fehlerbehandlung verbessert**: Robuster Try-Except-Block bei Preset-Analyse mit Fallback auf 'default'
+
+### 🔧 Changed - Änderungen
+- **Config-Erweiterung**: VERSION-Konstante in config.py hinzugefügt (1.2.0)
+- **Import-Optimierung**: `safe_join` und `MAX_FILE_SIZE_MB` korrekt importiert
+- **Error Handling**: FileExistsError wird jetzt spezifisch behandelt bei Race Conditions
+
+### 📚 Technical Details
+- **web_server.py**:
+  - Zeile 828-843: Path Traversal Protection mit `secure_filename()` + `safe_join()`
+  - Zeile 859-868: File Size Validation (HTTP 413 bei Überschreitung)
+  - Zeile 910: Filename Sanitization in delete_file()
+- **batch_processor.py**:
+  - Zeile 91-94: Race Condition Handling mit FileExistsError
+  - Zeile 143-144: Atomare Existenz-Prüfung in _process_single_file()
+- **config.py**:
+  - Zeile 8: VERSION = "1.2.0" hinzugefügt
+
+### ⚠️ Breaking Changes
+- Keine Breaking Changes - vollständig rückwärtskompatibel zu v1.1.0
+
+### 📝 Migration Notes
+- Kein Migrations-Aufwand erforderlich
+- Automatisches Update über bestehenden Updater möglich
+
+---
+
 ## [1.1.0] - 2025-10-12
 
 ### 🎵 Added - Neue Features
