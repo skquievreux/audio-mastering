@@ -1,0 +1,86 @@
+name: Ecosystem Guard
+
+on:
+  push:
+    branches: [ main, master ]
+  schedule:
+    - cron: '0 0 * * 1' # Weekly on Mondays
+  workflow_dispatch:
+
+jobs:
+  standardize:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Enforce Standards
+        run: |
+          node -e '
+            const fs = require("fs");
+            const TARGET_NODE = ">=20.9.0";
+            const TARGET_NVMRC = "v20.18.0";
+            const TARGET_SUPABASE = "^2.49.4";
+            const TARGET_TS = "^5.8.2";
+
+            let changed = false;
+
+            // 1. Check package.json
+            if (fs.existsSync("package.json")) {
+              try {
+                const pkg = JSON.parse(fs.readFileSync("package.json", "utf8"));
+                
+                // Node Engine
+                if (!pkg.engines) pkg.engines = {};
+                if (pkg.engines.node !== TARGET_NODE) {
+                  pkg.engines.node = TARGET_NODE;
+                  changed = true;
+                  console.log("Fixed: Node engine");
+                }
+
+                // Supabase (if present)
+                if (pkg.dependencies && pkg.dependencies["@supabase/supabase-js"]) {
+                  if (pkg.dependencies["@supabase/supabase-js"] !== TARGET_SUPABASE) {
+                    pkg.dependencies["@supabase/supabase-js"] = TARGET_SUPABASE;
+                    changed = true;
+                    console.log("Fixed: Supabase version");
+                  }
+                }
+
+                // TypeScript (if present)
+                if (pkg.devDependencies && pkg.devDependencies.typescript) {
+                  if (pkg.devDependencies.typescript !== TARGET_TS) {
+                    pkg.devDependencies.typescript = TARGET_TS;
+                    changed = true;
+                    console.log("Fixed: TypeScript version");
+                  }
+                }
+
+                if (changed) {
+                  fs.writeFileSync("package.json", JSON.stringify(pkg, null, 2) + "\n");
+                }
+              } catch (e) { console.error("Error parsing package.json", e); }
+            }
+
+            // 2. Check .nvmrc
+            const nvmContent = fs.existsSync(".nvmrc") ? fs.readFileSync(".nvmrc", "utf8").trim() : "";
+            if (nvmContent !== TARGET_NVMRC) {
+              fs.writeFileSync(".nvmrc", TARGET_NVMRC);
+              changed = true;
+              console.log("Fixed: .nvmrc");
+            }
+          '
+
+      - name: Commit Changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: standardize ecosystem versions (Node 20, Supabase, TS)"
+          branch: ${{ github.head_ref }}
