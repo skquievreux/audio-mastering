@@ -1,0 +1,51 @@
+name: Sync to Dashboard
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Extract Metadata & Sync
+        env:
+          DASHBOARD_URL: ${{ secrets.DASHBOARD_URL }} # e.g. https://dashboard.example.com
+          DASHBOARD_API_KEY: ${{ secrets.DASHBOARD_API_KEY }}
+        run: |
+          # 1. Extract Data
+          REPO_NAME="${GITHUB_REPOSITORY#*/}"
+          NODE_VERSION=$(node -p "try { require('./package.json').engines.node } catch(e) { '' }")
+          REACT_VERSION=$(node -p "try { require('./package.json').dependencies.react } catch(e) { '' }")
+          
+          echo "Syncing $REPO_NAME..."
+          echo "Node: $NODE_VERSION"
+          echo "React: $REACT_VERSION"
+
+          # 2. Construct JSON
+          JSON_DATA=$(cat <<EOF
+          {
+            "repoName": "$REPO_NAME",
+            "nameWithOwner": "$GITHUB_REPOSITORY",
+            "repoUrl": "https://github.com/$GITHUB_REPOSITORY",
+            "packageJson": {
+                "engines": { "node": "$NODE_VERSION" },
+                "dependencies": { "react": "$REACT_VERSION" }
+            }
+          }
+          EOF
+          )
+
+          # 3. Send to Dashboard
+          curl -X POST "$DASHBOARD_URL/api/system/ingest" \
+            -H "Content-Type: application/json" \
+            -H "x-api-key: $DASHBOARD_API_KEY" \
+            -d "$JSON_DATA"
