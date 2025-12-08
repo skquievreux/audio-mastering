@@ -77,6 +77,16 @@ jobs:
               changed = true;
               console.log("Fixed: .nvmrc");
             }
+
+            // 3. Check Metadata (Next.js App Router)
+            if (fs.existsSync("app/layout.tsx") || fs.existsSync("app/page.tsx")) {
+               const hasOgImage = fs.existsSync("app/opengraph-image.tsx") || fs.existsSync("app/opengraph-image.png") || fs.existsSync("app/opengraph-image.jpg");
+               // Ideally we should also grep layout.tsx for metadata exports, but that is complex with regex.
+               // For now, prompt for the file if missing.
+               if (!hasOgImage) {
+                   console.log("::warning file=app/layout.tsx,title=Missing Metadata::Consider adding app/opengraph-image.tsx for social previews.");
+               }
+            }
           '
 
       - name: Commit Changes
