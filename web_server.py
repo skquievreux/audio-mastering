@@ -9,9 +9,11 @@ import json
 import os
 import threading
 from werkzeug.utils import secure_filename
+from werkzeug.security import safe_join
 from audio_analyzer import AudioAnalyzer
 from batch_processor import BatchProcessor
 from audio_processor import MASTERING_PRESETS
+from config import MAX_FILE_SIZE_MB
 import shutil
 
 app = Flask(__name__)
@@ -821,16 +823,29 @@ def index():
 
 @app.route('/audio/<folder>/<filename>')
 def serve_audio(folder, filename):
-    """Audio-Dateien ausliefern"""
+    """Audio-Dateien ausliefern (mit Security-Validierung)"""
+    # Security: Filename sanitization gegen Path Traversal
+    filename = secure_filename(filename)
+
+    if not filename:
+        return "Ungültiger Dateiname", 400
+
     if folder == 'input':
-        return send_from_directory(INPUT_DIR, filename)
+        # Security: safe_join verhindert Directory Traversal
+        file_path = safe_join(str(INPUT_DIR), filename)
+        if file_path and Path(file_path).exists():
+            return send_from_directory(INPUT_DIR, filename)
     elif folder == 'output':
-        return send_from_directory(OUTPUT_DIR, filename)
+        file_path = safe_join(str(OUTPUT_DIR), filename)
+        if file_path and Path(file_path).exists():
+            return send_from_directory(OUTPUT_DIR, filename)
+
+    return "Datei nicht gefunden", 404
 
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
-    """Datei-Upload über Weboberfläche"""
+    """Datei-Upload über Weboberfläche (mit Größen-Validierung)"""
     if 'file' not in request.files:
         return jsonify({'error': 'Keine Datei ausgewählt'}), 400
 
@@ -841,18 +856,36 @@ def upload_file():
         if file.filename == '':
             continue
 
+        # Security & Validation: Dateigrößen-Check
+        file.seek(0, os.SEEK_END)
+        size_bytes = file.tell()
+        size_mb = size_bytes / (1024 * 1024)
+        file.seek(0)
+
+        if size_mb > MAX_FILE_SIZE_MB:
+            return jsonify({
+                'error': f'{file.filename} ist zu groß ({size_mb:.1f}MB > {MAX_FILE_SIZE_MB}MB)'
+            }), 413
+
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             file_path = INPUT_DIR / filename
+
+            # Speichere Datei
             file.save(file_path)
 
             # Analysiere Datei für Preset-Vorschlag
-            preset, reason = analyze_audio_for_preset(file_path)
+            try:
+                preset, reason = analyze_audio_for_preset(file_path)
+            except Exception as e:
+                # Fallback bei Analyse-Fehler
+                preset, reason = 'default', 'Standard (Analyse fehlgeschlagen)'
 
             uploaded_files.append({
                 'filename': filename,
                 'preset': preset,
-                'reason': reason
+                'reason': reason,
+                'size_mb': round(size_mb, 2)
             })
         else:
             return jsonify({'error': f'Dateityp von {file.filename} nicht erlaubt'}), 400
@@ -891,6 +924,9 @@ def process_files():
 def delete_file(filename):
     """Lösche eine gemasterte Datei"""
     try:
+        # Security: Filename sanitization
+        filename = secure_filename(filename)
+
         # Sicherstellen, dass es eine gemasterte Datei ist
         if not filename.endswith('_mastered.wav'):
             return jsonify({'error': 'Nur gemasterte Dateien können gelöscht werden'}), 400
@@ -903,8 +939,6 @@ def delete_file(filename):
             return jsonify({'error': 'Datei nicht gefunden'}), 404
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-    else:
-        return "Ordner nicht gefunden", 404
 
 if __name__ == '__main__':
     print("🎵 Starte Audio-Vergleich Webserver...")

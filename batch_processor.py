@@ -74,18 +74,24 @@ class BatchProcessor:
         if max_workers == 1:
             # Sequentiell verarbeiten
             for i, input_file in enumerate(files, 1):
-                # Prüfen ob bereits verarbeitet
+                # Generiere Output-Pfad
                 output_filename = f"{input_file.stem}{MASTERED_SUFFIX}{input_file.suffix.lower()}"
                 output_path = self.output_dir / output_filename
 
-                if output_path.exists():
-                    logger.info(f"Überspringe {input_file.name} - bereits verarbeitet")
-                    continue
-
                 logger.info(f"Verarbeite {i}/{len(files)}: {input_file.name}")
                 try:
+                    # Fix: Race Condition vermeiden - prüfe in _process_single_file
+                    # ob Datei existiert und überspringe dann
+                    if output_path.exists():
+                        logger.info(f"Überspringe {input_file.name} - bereits verarbeitet")
+                        continue
+
                     result = self._process_single_file(input_file)
                     results.append(result)
+                except FileExistsError:
+                    # Datei wurde während Verarbeitung erstellt (Race Condition)
+                    logger.info(f"Überspringe {input_file.name} - bereits verarbeitet (Race Condition)")
+                    continue
                 except Exception as e:
                     error_info = {
                         'file': str(input_file),
@@ -126,12 +132,16 @@ class BatchProcessor:
         return summary
 
     def _process_single_file(self, input_file: Path) -> Dict[str, any]:
-        """Verarbeitet eine einzelne Datei"""
+        """Verarbeitet eine einzelne Datei (mit Race Condition Protection)"""
         # Output-Dateiname generieren
         stem = input_file.stem
         suffix = input_file.suffix.lower()
         output_filename = f"{stem}{MASTERED_SUFFIX}{suffix}"
         output_path = self.output_dir / output_filename
+
+        # Fix: Atomare Prüfung ob Datei bereits existiert
+        if output_path.exists():
+            raise FileExistsError(f"Output-Datei existiert bereits: {output_path}")
 
         # Verarbeiten
         result = self.processor.process_file(str(input_file), str(output_path))
