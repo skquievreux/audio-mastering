@@ -13,6 +13,12 @@ TRUE_PEAK_CEILING_DBTP = -1.0
 SAMPLE_RATE = 44100
 BIT_DEPTH = 16
 
+# Version
+VERSION = "1.1.1"
+
+# Default-Preset (für Suno AI optimiert)
+DEFAULT_PRESET = 'suno'
+
 # Filter-Parameter
 HIGH_PASS_FREQ = 20  # Hz
 

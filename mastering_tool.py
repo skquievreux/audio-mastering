@@ -79,9 +79,9 @@ Verfügbare Presets:
     parser.add_argument(
         "--preset",
         type=str,
-        default="default",
+        default="suno",  # ← Geändert von 'default' zu 'suno'
         choices=list(MASTERING_PRESETS.keys()),
-        help="Mastering-Preset verwenden (Standard: default)"
+        help="Mastering-Preset verwenden (Standard: suno)"
     )
 
     parser.add_argument(

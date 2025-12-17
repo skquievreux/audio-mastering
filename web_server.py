@@ -55,17 +55,17 @@ def analyze_audio_for_preset(audio_path):
 
         lufs = stats['original_lufs']
 
-        # Preset-Empfehlungen basierend auf LUFS
+        # Preset-Empfehlungen basierend auf LUFS - immer Suno für AI-Musik
         if lufs > -12:
-            return "gentle", "Sanfte Bearbeitung für bereits laute Aufnahmen"
+            return "suno", "Suno AI Preset für bereits laute Aufnahmen"
         elif lufs > -16:
-            return "default", "Standard-Mastering für moderate Lautheit"
+            return "suno", "Suno AI Preset für moderate Lautheit"
         elif lufs > -20:
-            return "dynamic", "Dynamische Bearbeitung für leise Aufnahmen"
+            return "suno", "Suno AI Preset für leise Aufnahmen"
         else:
-            return "aggressive", "Intensive Bearbeitung für sehr leise Aufnahmen"
+            return "suno", "Suno AI Preset für sehr leise Aufnahmen"
     except:
-        return "default", "Standard-Preset bei Analysefehler"
+        return "suno", "Suno AI Preset bei Analysefehler"
 
 HTML_TEMPLATE = """
 <!DOCTYPE html>
@@ -338,8 +338,8 @@ HTML_TEMPLATE = """
                 <button type="button" onclick="document.getElementById('fileInput').click()" class="play-btn">📁 Dateien auswählen</button>
                 <button type="button" onclick="processFiles()" class="ab-test" id="processBtn" disabled>🎛️ Mastering starten</button>
                 <select id="presetSelect" style="padding: 10px; border-radius: 5px; border: 1px solid #ddd;">
-                    <option value="auto">🤖 Automatisch (empfohlen)</option>
-                    <option value="default">🎵 Standard</option>
+                    <option value="auto">🤖 Automatisch (Suno AI)</option>
+                    <option value="suno">🎵 Suno AI (Standard)</option>
                     <option value="gentle">🌸 Sanft</option>
                     <option value="aggressive">🔥 Intensiv</option>
                     <option value="dynamic">🎼 Dynamisch</option>
@@ -396,8 +396,8 @@ HTML_TEMPLATE = """
                                 <div class="stat-label">LUFS Δ</div>
                             </div>
                             <div class="stat-item">
-                                <div class="stat-value">{{ "%.1f"|format(file.stats.final_peak) }} dBTP</div>
-                                <div class="stat-label">Peak (begrenzt)</div>
+                                <div class="stat-value">{{ file.stats.preset_used|default('suno') }}</div>
+                                <div class="stat-label">Preset</div>
                             </div>
                         </div>
                     </div>

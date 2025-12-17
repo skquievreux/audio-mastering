@@ -16,10 +16,10 @@ MASTERING_PRESETS = {
     'default': {
         'target_lufs': -10.0,
         'true_peak': -1.0,
-        'comp_threshold': -12,
-        'comp_ratio': 2.5,
-        'comp_attack': 10,
-        'comp_release': 150,
+        'comp_threshold': -15,  # Weniger aggressiv
+        'comp_ratio': 2.0,      # Weniger aggressiv (statt 2.5)
+        'comp_attack': 15,      # Sanfter
+        'comp_release': 200,    # Länger
         'use_compression': True
     },
 
@@ -32,6 +32,17 @@ MASTERING_PRESETS = {
         'comp_attack': 15,
         'comp_release': 200,
         'use_compression': False  # Nur LUFS + Limiter
+    },
+
+    'suno': {
+        # Speziell für Suno AI Songs - keine Kompression, nur LUFS + Limiter
+        'target_lufs': -10.0,
+        'true_peak': -1.0,
+        'comp_threshold': -20,  # Nicht verwendet
+        'comp_ratio': 1.0,      # Nicht verwendet
+        'comp_attack': 20,      # Nicht verwendet
+        'comp_release': 200,    # Nicht verwendet
+        'use_compression': False  # Keine Kompression für Suno AI
     },
 
     'aggressive': {
@@ -69,9 +80,9 @@ MASTERING_PRESETS = {
 }
 
 
-def get_preset(name='default'):
+def get_preset(name='suno'):
     """Lade Preset nach Name"""
-    return MASTERING_PRESETS.get(name, MASTERING_PRESETS['default'])
+    return MASTERING_PRESETS.get(name, MASTERING_PRESETS['suno'])
 
 
 class AudioProcessor:
@@ -87,12 +98,12 @@ class AudioProcessor:
                  target_lufs: float = -10.0,
                  true_peak_ceiling: float = -1.0,
                  sample_rate: int = 44100,
-                 preset: str = 'default'):
+                 preset: str = 'suno'):
         # Speichere Preset-Name für Logging
         self._preset_name = preset
 
         # Lade Preset falls angegeben
-        if preset != 'default':
+        if preset != 'suno':
             config = get_preset(preset)
             self.target_lufs = config['target_lufs']
             self.true_peak_ceiling = config['true_peak']
@@ -103,10 +114,10 @@ class AudioProcessor:
         else:
             self.target_lufs = target_lufs
             self.true_peak_ceiling = true_peak_ceiling
-            self.use_compression = True
+            self.use_compression = False  # Suno AI Standard: keine Kompression
             self.comp_threshold = -20.0  # Default
-            self.comp_ratio = 3.0  # Default
-            logger.info(f"🎛️ Verwende Custom-Settings: LUFS {self.target_lufs}dB, Kompression Ja")
+            self.comp_ratio = 1.0  # Default
+            logger.info(f"🎛️ Verwende Suno AI Preset: LUFS {self.target_lufs}dB, Kompression Nein")
 
         self.sample_rate = sample_rate
         self.meter = pyln.Meter(sample_rate)
@@ -169,35 +180,27 @@ class AudioProcessor:
             hp_analysis = self.analyze_audio(audio, "Nach High-Pass")
             logger.info(f"   → LUFS: {hp_analysis['lufs']}dB (Δ{round(hp_analysis['lufs'] - original_analysis['lufs'], 2)}dB)")
 
-            # 3. Peak Limiter (VOR Normalisierung für Anti-Clipping!)
-            logger.info(f"🔊 Schritt 2: Peak Limiter ({self.true_peak_ceiling}dBTP) - Anti-Clipping")
-            audio = self._apply_peak_limiter(audio)
-            limiter_analysis = self.analyze_audio(audio, "Nach Limiter")
-            logger.info(f"   → Peak: {limiter_analysis['peak_dbtp']}dBTP (Δ{round(limiter_analysis['peak_dbtp'] - hp_analysis['peak_dbtp'], 2)}dB)")
+            # 3. LUFS-Normalisierung (mit intelligentem Anti-Clipping)
+            logger.info(f"📏 Schritt 2: LUFS-Normalisierung auf {self.target_lufs}dB")
+            audio = self._normalize_lufs_smart(audio, self.target_lufs)
+            lufs_analysis = self.analyze_audio(audio, "Nach LUFS-Norm")
+            logger.info(f"   → LUFS: {lufs_analysis['lufs']}dB (Δ{round(lufs_analysis['lufs'] - hp_analysis['lufs'], 2)}dB)")
 
-            # 4. Kompression (falls aktiviert)
+            # 4. Kompression (falls aktiviert - NACH Normalisierung!)
             if self.use_compression:
                 logger.info(f"🗜️  Schritt 3: Kompression ({self.comp_ratio}:1 @ {self.comp_threshold}dB)")
                 audio = self._apply_compression(audio, self.comp_ratio, self.comp_threshold)
                 comp_analysis = self.analyze_audio(audio, "Nach Kompression")
-                logger.info(f"   → LUFS: {comp_analysis['lufs']}dB (Δ{round(comp_analysis['lufs'] - limiter_analysis['lufs'], 2)}dB)")
+                logger.info(f"   → LUFS: {comp_analysis['lufs']}dB (Δ{round(comp_analysis['lufs'] - lufs_analysis['lufs'], 2)}dB)")
             else:
-                logger.info("🗜️  Schritt 3: Kompression übersprungen (Preset: gentle)")
-                comp_analysis = limiter_analysis
+                logger.info("🗜️  Schritt 3: Kompression übersprungen (Preset: gentle/suno)")
+                comp_analysis = lufs_analysis
 
-            # 5. LUFS-Normalisierung (mit Headroom für Limiter)
-            # Berechne sicheres Ziel: 1dB unter dem gewünschten Wert für Limiter-Spielraum
-            safe_target_lufs = self.target_lufs + 1.0  # +1dB Headroom
-            logger.info(f"📏 Schritt 4: LUFS-Normalisierung auf {safe_target_lufs}dB (Headroom für Limiter)")
-            audio = self._normalize_lufs_safe(audio, safe_target_lufs)
-            lufs_analysis = self.analyze_audio(audio, "Nach LUFS-Norm")
-            logger.info(f"   → LUFS: {lufs_analysis['lufs']}dB (Δ{round(lufs_analysis['lufs'] - comp_analysis['lufs'], 2)}dB)")
-
-            # Finale Peak-Kontrolle falls nötig
-            final_peak = self._measure_true_peak(audio)
-            if final_peak > self.true_peak_ceiling:
-                logger.warning(f"⚠️  Finale Peak-Kontrolle: {final_peak}dBTP > {self.true_peak_ceiling}dBTP, Limiter anwenden")
-                audio = self._apply_peak_limiter(audio)
+            # 5. Peak Limiter (NACH Kompression für korrekte Reihenfolge!)
+            logger.info(f"🔊 Schritt 4: Peak Limiter ({self.true_peak_ceiling}dBTP)")
+            audio = self._apply_peak_limiter(audio)
+            limiter_analysis = self.analyze_audio(audio, "Nach Limiter")
+            logger.info(f"   → Peak: {limiter_analysis['peak_dbtp']}dBTP (Δ{round(limiter_analysis['peak_dbtp'] - comp_analysis['peak_dbtp'], 2)}dB)")
 
             # 6. Speichern
             logger.info(f"💾 Speichere als {output_path}")
@@ -215,8 +218,8 @@ class AudioProcessor:
                 'final': final_analysis,
                 'processing_steps': {
                     'high_pass': hp_analysis,
-                    'compression': comp_analysis if self.use_compression else None,
                     'lufs_norm': lufs_analysis,
+                    'compression': comp_analysis if self.use_compression else None,
                     'limiter': limiter_analysis
                 },
                 'duration_sec': len(audio) / sr,
@@ -272,35 +275,46 @@ class AudioProcessor:
             logger.warning(f"LUFS-Normalisierung fehlgeschlagen: {e}, verwende Original")
             return audio
 
-    def _normalize_lufs_safe(self, audio: np.ndarray, target_lufs: float) -> np.ndarray:
-        """Sichere LUFS-Normalisierung mit Clipping-Prüfung"""
+    def _normalize_lufs_smart(self, audio: np.ndarray, target_lufs: float) -> np.ndarray:
+        """Intelligente LUFS-Normalisierung mit Soft-Limiting"""
         try:
             # Original-Lautstärke messen
             original_loudness = self.meter.integrated_loudness(audio)
 
             # Berechne benötigte Verstärkung
             gain_db = target_lufs - original_loudness
-            gain_linear = 10 ** (gain_db / 20)
 
             # Test-Normalisierung
-            test_audio = audio * gain_linear
+            test_audio = audio * 10 ** (gain_db / 20)
 
-            # Prüfe auf Clipping vor der Anwendung
-            max_sample = np.max(np.abs(test_audio))
-            if max_sample >= 0.99:  # Nahe 0dBFS
-                # Reduziere Gain um Clipping zu vermeiden
-                headroom_db = 20 * np.log10(max_sample) - 20 * np.log10(0.99)
-                safe_gain_db = gain_db - headroom_db - 0.5  # Extra 0.5dB Sicherheit
-                safe_gain_linear = 10 ** (safe_gain_db / 20)
+            # Prüfe True Peak nach Normalisierung
+            test_peak = self._measure_true_peak(test_audio)
 
-                logger.info(f"🛡️  Anti-Clipping: Gain von {gain_db:.1f}dB auf {safe_gain_db:.1f}dB reduziert")
-                return audio * safe_gain_linear
+            if test_peak > self.true_peak_ceiling:
+                # Zu viel Gain - verwende Soft-Limiting Strategie
+                # Berechne maximal möglichen Gain ohne Clipping
+                max_safe_gain_db = gain_db - (test_peak - self.true_peak_ceiling) - 0.5  # 0.5dB Headroom
+                max_safe_gain_linear = 10 ** (max_safe_gain_db / 20)
+
+                logger.info(f"🛡️  Smart Limiting: Peak {test_peak:.1f}dBTP > {self.true_peak_ceiling}dBTP, Gain auf {max_safe_gain_db:.1f}dB begrenzt")
+                audio = audio * max_safe_gain_linear
+
+                # Nach-Normalisierung falls noch nicht nah genug am Ziel
+                current_loudness = self.meter.integrated_loudness(audio)
+                if abs(current_loudness - target_lufs) > 1.0:  # Mehr als 1dB Abweichung
+                    remaining_gain_db = target_lufs - current_loudness
+                    # Begrenze Nach-Normalisierung auf 2dB
+                    remaining_gain_db = max(-2.0, min(2.0, remaining_gain_db))
+                    audio = audio * 10 ** (remaining_gain_db / 20)
+                    logger.info(f"🔄 Nach-Normalisierung: +{remaining_gain_db:.1f}dB für genauere Zielerreichung")
+
+                return audio
             else:
-                # Sichere Normalisierung
+                # Normalisierung sicher möglich
                 return pyln.normalize.loudness(audio, original_loudness, target_lufs)
 
         except Exception as e:
-            logger.warning(f"Sichere LUFS-Normalisierung fehlgeschlagen: {e}, verwende Original")
+            logger.warning(f"Intelligente LUFS-Normalisierung fehlgeschlagen: {e}, verwende Original")
             return audio
 
     def _apply_peak_limiter(self, audio: np.ndarray) -> np.ndarray:
