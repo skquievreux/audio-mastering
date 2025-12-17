@@ -1,0 +1,81 @@
+name: Rollout Standards
+
+on:
+  workflow_dispatch:
+    inputs:
+      repo_name:
+        description: 'Name of the repository to standardize (e.g., vibecoder-architect-reviewer)'
+        required: true
+        type: string
+
+jobs:
+  standardize-and-verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Dashboard (Scripts)
+        uses: actions/checkout@v4
+        with:
+          repository: skquievreux/dashboard # Adjust if dashboard is in a different repo
+          path: dashboard
+          token: ${{ secrets.GH_PAT }}
+
+      - name: Checkout Target Repository
+        uses: actions/checkout@v4
+        with:
+          repository: skquievreux/${{ inputs.repo_name }}
+          path: target-repo
+          token: ${{ secrets.GH_PAT }}
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Dashboard Dependencies (for scripts)
+        run: |
+          cd dashboard
+          npm install typescript ts-node @types/node --save-dev
+
+      - name: Apply Standardization Scripts
+        run: |
+          echo "Applying standards to ${{ inputs.repo_name }}..."
+          
+          # 1. Node.js Standards
+          node dashboard/scripts/standardize-node.js ./target-repo --yes
+          
+          # 2. TypeScript Standards
+          node dashboard/scripts/standardize-ts.js ./target-repo --yes
+          
+          # 3. React Compiler
+          npx ts-node dashboard/scripts/enable-react-compiler.ts ./target-repo
+
+      - name: Verify Build
+        run: |
+          cd target-repo
+          
+          # Install dependencies with new standards
+          npm install
+          
+          # Try to build
+          echo "Running build verification..."
+          npm run build
+
+      - name: Create Pull Request / Push Branch
+        if: success()
+        run: |
+          cd target-repo
+          git config user.name "Architecture Bot"
+          git config user.email "bot@vibecoder.dev"
+          
+          BRANCH_NAME="chore/standardize-architecture"
+          
+          git checkout -b $BRANCH_NAME
+          
+          git add .
+          git commit -m "chore: standardize architecture (Node 20, TS 5.8, React Compiler)"
+          
+          # Push to remote (triggers Vercel if configured)
+          git push origin $BRANCH_NAME --force
+          
+          echo "✅ Changes pushed to branch $BRANCH_NAME. Check Vercel for preview."
