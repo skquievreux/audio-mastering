@@ -31,11 +31,22 @@ jobs:
           echo "React: $REACT_VERSION"
 
           # 2. Construct JSON
+          # Read OpenAPI spec if exists, escape quotes
+          API_SPEC=""
+          if [ -f "app/api/openapi.json" ]; then
+            API_SPEC=$(cat app/api/openapi.json | jq -R -s '.')
+          elif [ -f "public/openapi.json" ]; then
+            API_SPEC=$(cat public/openapi.json | jq -R -s '.')
+          else
+            API_SPEC="null"
+          fi
+
           JSON_DATA=$(cat <<EOF
           {
             "repoName": "$REPO_NAME",
             "nameWithOwner": "$GITHUB_REPOSITORY",
             "repoUrl": "https://github.com/$GITHUB_REPOSITORY",
+            "apiSpec": $API_SPEC,
             "packageJson": {
                 "engines": { "node": "$NODE_VERSION" },
                 "dependencies": { "react": "$REACT_VERSION" }
