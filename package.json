@@ -1,0 +1,56 @@
+{
+    "name": "audio-mastering",
+    "version": "1.3.0",
+    "description": "Professional Audio Mastering Tool with Python and DSP",
+    "private": true,
+    "packageManager": "pnpm@10.0.0",
+    "engines": {
+        "node": ">=20.0.0",
+        "pnpm": ">=10.0.0"
+    },
+    "scripts": {
+        "release": "semantic-release"
+    },
+    "release": {
+        "branches": [
+            "main",
+            "master"
+        ],
+        "plugins": [
+            "@semantic-release/commit-analyzer",
+            "@semantic-release/release-notes-generator",
+            "@semantic-release/changelog",
+            [
+                "@semantic-release/npm",
+                {
+                    "npmPublish": false
+                }
+            ],
+            [
+                "@semantic-release/github",
+                {
+                    "assets": []
+                }
+            ],
+            [
+                "@semantic-release/git",
+                {
+                    "assets": [
+                        "package.json",
+                        "CHANGELOG.md"
+                    ],
+                    "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
+                }
+            ]
+        ]
+    },
+    "devDependencies": {
+        "semantic-release": "^24.0.0",
+        "@semantic-release/commit-analyzer": "^13.0.0",
+        "@semantic-release/release-notes-generator": "^14.0.0",
+        "@semantic-release/changelog": "^6.0.0",
+        "@semantic-release/npm": "^12.0.0",
+        "@semantic-release/git": "^10.0.0",
+        "@semantic-release/github": "^11.0.0"
+    }
+}

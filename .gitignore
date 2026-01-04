@@ -171,3 +171,7 @@ latest.json
 *.bak
 *.backup
 *~
+
+# Node.js and pnpm
+node_modules/
+.pnpm-debug.log*
