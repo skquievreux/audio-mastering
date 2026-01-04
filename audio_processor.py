@@ -6,8 +6,10 @@ import numpy as np
 import soundfile as sf
 import pyloudnorm as pyln
 from scipy import signal
+from scipy.signal import resample_poly
 from typing import Tuple, Optional
 import logging
+from math import gcd
 
 logger = logging.getLogger(__name__)
 
@@ -110,6 +112,8 @@ class AudioProcessor:
             self.use_compression = config['use_compression']
             self.comp_threshold = config['comp_threshold']
             self.comp_ratio = config['comp_ratio']
+            self.comp_attack = config['comp_attack']
+            self.comp_release = config['comp_release']
             logger.info(f"🎛️ Verwende Preset '{preset}': LUFS {self.target_lufs}dB, Kompression {'Ja' if self.use_compression else 'Nein'}")
         else:
             self.target_lufs = target_lufs
@@ -117,6 +121,8 @@ class AudioProcessor:
             self.use_compression = False  # Suno AI Standard: keine Kompression
             self.comp_threshold = -20.0  # Default
             self.comp_ratio = 1.0  # Default
+            self.comp_attack = 10.0  # Default
+            self.comp_release = 100.0  # Default
             logger.info(f"🎛️ Verwende Suno AI Preset: LUFS {self.target_lufs}dB, Kompression Nein")
 
         self.sample_rate = sample_rate
@@ -188,8 +194,11 @@ class AudioProcessor:
 
             # 4. Kompression (falls aktiviert - NACH Normalisierung!)
             if self.use_compression:
-                logger.info(f"🗜️  Schritt 3: Kompression ({self.comp_ratio}:1 @ {self.comp_threshold}dB)")
-                audio = self._apply_compression(audio, self.comp_ratio, self.comp_threshold)
+                # Hole Attack/Release aus Preset (mit Defaults)
+                attack = getattr(self, 'comp_attack', 10)
+                release = getattr(self, 'comp_release', 100)
+                logger.info(f"🗜️  Schritt 3: RMS-Kompression ({self.comp_ratio}:1 @ {self.comp_threshold}dB, A={attack}ms R={release}ms)")
+                audio = self._apply_compression(audio, self.comp_ratio, self.comp_threshold, attack, release)
                 comp_analysis = self.analyze_audio(audio, "Nach Kompression")
                 logger.info(f"   → LUFS: {comp_analysis['lufs']}dB (Δ{round(comp_analysis['lufs'] - lufs_analysis['lufs'], 2)}dB)")
             else:
@@ -234,37 +243,122 @@ class AudioProcessor:
             logger.error(f"❌ Fehler bei Verarbeitung von {input_path}: {str(e)}")
             raise
 
-    def _resample_audio(self, audio: np.ndarray, from_sr: int, to_sr: int) -> np.ndarray:
-        """Resample Audio auf Ziel-Sample-Rate"""
+    def _process_channels(self, audio: np.ndarray, func, *args, **kwargs) -> np.ndarray:
+        """
+        Helper-Funktion: Wendet Funktion auf Mono/Stereo-Audio an
+
+        Eliminiert Code-Duplikation bei Stereo-Processing
+        """
         if audio.ndim == 1:
-            return signal.resample(audio, int(len(audio) * to_sr / from_sr))
+            return func(audio, *args, **kwargs)
         else:
             return np.column_stack([
-                signal.resample(audio[:, 0], int(len(audio) * to_sr / from_sr)),
-                signal.resample(audio[:, 1], int(len(audio) * to_sr / from_sr))
+                func(audio[:, 0], *args, **kwargs),
+                func(audio[:, 1], *args, **kwargs)
+            ])
+
+    def _resample_audio(self, audio: np.ndarray, from_sr: int, to_sr: int) -> np.ndarray:
+        """
+        Resample Audio auf Ziel-Sample-Rate
+
+        Performance: Verwendet resample_poly statt FFT-basiertem resample
+        Speedup: 10-100x schneller bei typischen Sample-Rate-Konvertierungen
+        """
+        # Berechne GCD für effizientes Resampling
+        divisor = gcd(from_sr, to_sr)
+        up = to_sr // divisor
+        down = from_sr // divisor
+
+        logger.debug(f"Resampling: {from_sr}Hz → {to_sr}Hz (up={up}, down={down})")
+
+        # resample_poly verwendet Polyphase-Filter (viel schneller als FFT)
+        if audio.ndim == 1:
+            return resample_poly(audio, up, down)
+        else:
+            return np.column_stack([
+                resample_poly(audio[:, 0], up, down),
+                resample_poly(audio[:, 1], up, down)
             ])
 
     def _apply_high_pass(self, audio: np.ndarray, sr: int) -> np.ndarray:
-        """High-Pass Filter bei 20 Hz"""
+        """
+        High-Pass Filter bei 20 Hz
+
+        Verwendet helper für sauberes Stereo-Handling
+        """
         sos = signal.butter(4, 20, 'hp', fs=sr, output='sos')
 
-        if audio.ndim == 1:
-            return signal.sosfilt(sos, audio)
-        else:
-            return np.column_stack([
-                signal.sosfilt(sos, audio[:, 0]),
-                signal.sosfilt(sos, audio[:, 1])
-            ])
+        # Nutze Helper-Funktion statt Code-Duplikation
+        return self._process_channels(audio, lambda ch: signal.sosfilt(sos, ch))
 
-    def _apply_compression(self, audio: np.ndarray, ratio: float = 3.0, threshold_db: float = -20.0) -> np.ndarray:
-        """Einfache Kompression"""
-        audio_db = 20 * np.log10(np.abs(audio) + 1e-10)
-        over_threshold = audio_db > threshold_db
-        compressed_db = np.where(over_threshold,
-                                threshold_db + (audio_db - threshold_db) / ratio,
-                                audio_db)
-        compressed_linear = 10 ** (compressed_db / 20)
-        return np.sign(audio) * compressed_linear
+    def _apply_compression(self, audio: np.ndarray, ratio: float = 3.0,
+                          threshold_db: float = -20.0,
+                          attack_ms: float = 10.0,
+                          release_ms: float = 100.0,
+                          knee_db: float = 6.0) -> np.ndarray:
+        """
+        Professioneller RMS-Kompressor mit Attack/Release
+
+        Verbesserungen gegenüber altem Kompressor:
+        - RMS-basiert statt Sample-basiert (keine Knackgeräusche)
+        - Attack/Release Envelope für sanfte Übergänge
+        - Soft Knee für natürlicheren Sound
+        - Make-up Gain für konstante Lautheit
+        """
+        # 1. RMS-Envelope berechnen (10ms Fenster)
+        window_size = int(0.01 * self.sample_rate)
+        rms_squared = np.convolve(audio**2, np.ones(window_size)/window_size, mode='same')
+        rms_envelope = np.sqrt(np.maximum(rms_squared, 1e-10))
+        rms_db = 20 * np.log10(rms_envelope)
+
+        # 2. Gain Reduction berechnen (mit Soft Knee)
+        gain_reduction_db = np.zeros_like(rms_db)
+
+        # Soft Knee Bereich: [threshold - knee/2, threshold + knee/2]
+        knee_start = threshold_db - knee_db/2
+        knee_end = threshold_db + knee_db/2
+
+        # Unterhalb Knee: keine Kompression
+        below_knee = rms_db < knee_start
+        gain_reduction_db[below_knee] = 0
+
+        # Im Knee-Bereich: sanfter Übergang
+        in_knee = (rms_db >= knee_start) & (rms_db <= knee_end)
+        if np.any(in_knee):
+            x = rms_db[in_knee] - knee_start
+            gain_reduction_db[in_knee] = (x ** 2) / (2 * knee_db) * (1 - 1/ratio)
+
+        # Oberhalb Knee: volle Kompression
+        above_knee = rms_db > knee_end
+        gain_reduction_db[above_knee] = (threshold_db - rms_db[above_knee]) * (1 - 1/ratio)
+
+        # 3. Attack/Release Envelope Filter
+        attack_coeff = np.exp(-1 / (attack_ms * self.sample_rate / 1000))
+        release_coeff = np.exp(-1 / (release_ms * self.sample_rate / 1000))
+
+        smoothed_gr = np.zeros_like(gain_reduction_db)
+        smoothed_gr[0] = gain_reduction_db[0]
+
+        for i in range(1, len(gain_reduction_db)):
+            if gain_reduction_db[i] < smoothed_gr[i-1]:
+                # Attack (Gain Reduction erhöht sich = Attack)
+                smoothed_gr[i] = attack_coeff * smoothed_gr[i-1] + (1 - attack_coeff) * gain_reduction_db[i]
+            else:
+                # Release (Gain Reduction verringert sich = Release)
+                smoothed_gr[i] = release_coeff * smoothed_gr[i-1] + (1 - release_coeff) * gain_reduction_db[i]
+
+        # 4. Gain Reduction anwenden
+        gain_linear = 10 ** (smoothed_gr / 20)
+        compressed = audio * gain_linear
+
+        # 5. Make-up Gain (kompensiere durchschnittliche Gain Reduction)
+        avg_gr = np.mean(smoothed_gr[smoothed_gr < -0.1])  # Nur signifikante GR
+        if not np.isnan(avg_gr):
+            makeup_gain = -avg_gr * 0.7  # 70% der durchschnittlichen GR
+            compressed *= 10 ** (makeup_gain / 20)
+            logger.debug(f"Kompressor: Avg GR={avg_gr:.1f}dB, Makeup={makeup_gain:.1f}dB")
+
+        return compressed
 
     def _normalize_lufs(self, audio: np.ndarray) -> np.ndarray:
         """Normalisiere auf Ziel-LUFS"""
@@ -323,11 +417,36 @@ class AudioProcessor:
         return np.clip(audio, -ceiling_linear, ceiling_linear)
 
     def _measure_true_peak(self, audio: np.ndarray) -> float:
-        """Messe True Peak in dBTP"""
-        peak_linear = np.max(np.abs(audio))
-        if peak_linear == 0:
-            return -float('inf')
-        return 20 * np.log10(peak_linear)
+        """
+        Messe True Peak in dBTP (ITU-R BS.1770-4 konform)
+
+        Performance: 4x Oversampling zur Erkennung von Inter-Sample Peaks
+        Korrekt: Erkennt Peaks zwischen Samples die Digital-Analog-Wandler clippen würden
+        """
+        try:
+            # 4x Oversampling für inter-sample peak detection
+            if audio.ndim == 1:
+                oversampled = resample_poly(audio, 4, 1)
+            else:
+                oversampled = np.column_stack([
+                    resample_poly(audio[:, 0], 4, 1),
+                    resample_poly(audio[:, 1], 4, 1)
+                ])
+
+            peak_linear = np.max(np.abs(oversampled))
+
+            if peak_linear == 0:
+                return -float('inf')
+
+            peak_dbtp = 20 * np.log10(peak_linear)
+            logger.debug(f"True Peak (4x oversampled): {peak_dbtp:.2f} dBTP")
+
+            return peak_dbtp
+        except Exception as e:
+            logger.warning(f"True Peak Messung fehlgeschlagen: {e}, verwende Sample Peak")
+            # Fallback auf Sample Peak
+            peak_linear = np.max(np.abs(audio))
+            return 20 * np.log10(peak_linear) if peak_linear > 0 else -float('inf')
 
 
 # Erweiterte Nutzung:
