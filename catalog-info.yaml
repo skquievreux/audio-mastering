@@ -1,0 +1,12 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: audio-mastering
+  description: |
+    Ein vielseitiges Audio-Mastering-Tool, das Node.js für die Backend-Verarbeitung mit Python und Flask kombiniert, um professionelle Audio-Bearbeitung über eine HTML-basierte Benutzeroberfläche bereitzustellen.
+  annotations:
+    github.com/project-slug: skquievreux/audio-mastering
+spec:
+  type: service
+  lifecycle: experimental
+  owner: guests
