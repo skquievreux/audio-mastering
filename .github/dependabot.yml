@@ -1,17 +1,49 @@
-
 version: 2
+
 updates:
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
       interval: "weekly"
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 12
     groups:
-      react-dependencies:
+      security-and-critical:
         patterns:
+          - "*eslint*"
+          - "*prettier*"
+          - "*typescript*"
+          - "@types/*"
+        update-types: ["patch", "minor"]
+        dependency-type: "production"
+
+      nextjs-ecosystem:
+        patterns:
+          - "next"
           - "react"
           - "react-dom"
-          - "next"
-    ignore:
-      - dependency-name: "*"
-        update-types: ["version-update:semver-major"]
+          - "@next/*"
+          - "@sentry/nextjs"
+        update-types: ["minor", "patch"]
+
+      tooling-and-dev-deps:
+        dependency-type: "development"
+        update-types: ["minor", "patch"]
+        exclude-patterns:
+          - "*eslint*"
+          - "*prettier*"
+          - "typescript"
+
+      major-updates:
+        update-types: ["major"]
+
+    rebase-strategy: "auto"
+    labels:
+      - "dependencies"
+      - "autorebase-safe"
+    commit-message:
+      prefix: "chore(deps)"
+      prefix-development: "chore(deps-dev)"
+      include: "scope"
+
+    pull-request-branch-name:
+      separator: "-"
