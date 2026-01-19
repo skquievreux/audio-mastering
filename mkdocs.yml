@@ -6,16 +6,21 @@ nav:
   - Home: index.md
   - Architecture:
     - Overview: 01-architecture/index.md
+
     - Decisions: 01-architecture/decisions/
   - Implementation:
     - Overview: 02-implementation/index.md
+
   - Operations:
     - Overview: 03-operations/index.md
+
   - Business:
     - Overview: 04-business/index.md
+
     - History: 04-business/history/
   - Reference:
     - Overview: 05-reference/index.md
+
 
 plugins:
   - techdocs-core
