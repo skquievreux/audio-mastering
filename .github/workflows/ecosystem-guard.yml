@@ -1,11 +1,7 @@
 name: Ecosystem Guard
 
 on:
-  push:
-    branches: [ main, master ]
-  schedule:
-    - cron: '0 0 * * 1' # Weekly on Mondays
-  workflow_dispatch:
+  workflow_dispatch: # manual only - was push+weekly cron, caused unattended commits/deploys
 
 jobs:
   standardize:
